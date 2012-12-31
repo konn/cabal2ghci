@@ -1,0 +1,4 @@
+:set -XDeriveDataTypeable
+:set -XExtendedDefaultRules
+:set -XRecordWildCards
+:set -XOverloadedStrings
