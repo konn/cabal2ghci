@@ -11,7 +11,7 @@ import           Data.Yaml
 import           Distribution.PackageDescription
 import           Distribution.PackageDescription.Parse
 import           Filesystem
-import           Filesystem.Path.CurrentOS             hiding (encode)
+import           Filesystem.Path.CurrentOS             hiding (encode, concat)
 import           Language.Haskell.Extension
 import           Language.Haskell.Stylish
 import           Prelude                               hiding (FilePath,
@@ -77,5 +77,18 @@ gpackLib = maybe [] getChildren . condLibrary
 gpackExes :: GenericPackageDescription -> [Executable]
 gpackExes = concatMap (getChildren . snd) . condExecutables
 
+gpackTestSuites :: GenericPackageDescription -> [TestSuite]
+gpackTestSuites = concatMap (getChildren . snd) . condTestSuites
+
+gpackBenchmarks :: GenericPackageDescription -> [Benchmark]
+gpackBenchmarks = concatMap (getChildren . snd) . condBenchmarks
+
+-- | The 'BuildInfo' for library, all executables, test suites and benchmarks.
+-- Like 'allBuildInfo', but for 'GenericPackageDescription'
 gpackBuildInfos :: GenericPackageDescription -> [BuildInfo]
-gpackBuildInfos gp = map libBuildInfo (gpackLib gp) ++ map buildInfo (gpackExes gp)
+gpackBuildInfos gp = concat
+    [ map libBuildInfo (gpackLib gp)
+    , map buildInfo (gpackExes gp)
+    , map testBuildInfo (gpackTestSuites gp)
+    , map benchmarkBuildInfo (gpackBenchmarks gp)
+    ]
